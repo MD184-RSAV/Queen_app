@@ -1,39 +1,51 @@
 import streamlit as st
+from openai import OpenAI
 
-# Configuration du look "Peps"
+# 1. CONFIGURATION DE LA PAGE
 st.set_page_config(page_title="Queen!", page_icon="👑")
 
+# 2. STYLE "MD LABS" (Rose Peps et Vert Néon)
 st.markdown("""
     <style>
-    .main { background-color: #FF007A; color: white; } /* Rose ultra peps */
+    .main { background-color: #FF007A; color: white; }
     .stButton>button { 
-        background-color: #00FFA3; color: black; /* Vert néon */
+        background-color: #00FFA3; color: black; 
         border-radius: 10px; font-size: 20px; font-weight: bold; height: 3em; width: 100%;
+        border: none;
     }
-    h1, h2, h3 { color: white; text-align: center; }
+    h1, h2, h3 { color: white; text-align: center; font-family: 'Arial Black', sans-serif; }
+    .stTextArea textarea { background-color: #ffffff; color: #000000; border-radius: 10px; }
     </style>
     """, unsafe_allow_html=True)
 
+# 3. INITIALISATION DU CLIENT OPENAI (La ligne qui manquait !)
+# Assure-toi d'avoir configuré OPENAI_API_KEY dans les "Secrets" de Streamlit
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+
 st.title("Queen! 👑")
 
+# Gestion des étapes de l'appli
 if 'step' not in st.session_state:
     st.session_state.step = 'accueil'
 
-# --- ETAPE 1 : L'ACCUEIL ---
+# --- ÉTAPE 1 : L'ACCUEIL ---
 if st.session_state.step == 'accueil':
-    st.subheader("Salut ma Reine ! Prête à briller ?")
-    mood = st.text_area("Dis-moi tout : c'est quoi le mood dans ton corps et ta tête ?", placeholder="Je me sens comme une loque...")
+    st.subheader("Salut ma Reine ! Vide ton sac...")
+    mood = st.text_area("C'est quoi le mood là, tout de suite ?", placeholder="Sois cash, on est entre nous...", height=150)
+    
     if st.button("REBOOT-MOI !"):
-        st.session_state.mood = mood
-        st.session_state.step = 'reboot'
-        st.rerun()
+        if mood:
+            st.session_state.mood = mood
+            st.session_state.step = 'reboot'
+            st.rerun()
+        else:
+            st.warning("Écris un petit truc quand même, je suis pas devine !")
 
-# --- ÉTAPE 2 : LE REBOOT (AVEC LE MANIFESTE) ---
+# --- ÉTAPE 2 : LE REBOOT (L'IA EN ACTION) ---
 elif st.session_state.step == 'reboot':
     st.subheader("Écoute-moi bien...")
     
     with st.spinner("Je prépare ton shot d'insolence..."):
-        # C'est ici que réside la magie de Queen! 👑
         manifeste_queen = """
         Tu es Queen!, la coach la plus cash, drôle et insolente de la planète. 
         Ton job : Secouer l'utilisatrice avec amour pour la sortir de la culpabilité.
@@ -42,34 +54,28 @@ elif st.session_state.step == 'reboot':
         1. Tutoiement obligatoire. Utilise 'ma poule', 'meuf', 'ma reine', 'chérie'.
         2. Sois bonne vivante : le chocolat, le vin et les frites ne sont PAS des ennemis. 
         3. Interdiction de parler de régime ou de calories.
-        4. Si elle se plaint d'avoir 'trop mangé' ou d'être 'nulle', réponds-lui que son corps est son empire et qu'un empire, ça s'entretient, ça ne se punit pas.
-        5. Ton ton doit être un mix entre une humoriste de stand-up et une grande sœur protectrice.
-        
+        4. Ton ton doit être un mix entre une humoriste de stand-up et une grande sœur protectrice.
         Format : Maximum 3 phrases percutantes.
         """
 
-        response = client.chat.completions.create(
-            model="gpt-4o", # Le modèle le plus intelligent
-            messages=[
-                {"role": "system", "content": manifeste_queen},
-                {"role": "user", "content": f"Je me sens comme ça : {st.session_state.mood}"}
-            ]
-        )
-        reponse_cash = response.choices[0].message.content
-        st.markdown(f"### {reponse_cash}")
-
-# --- ETAPE 3 : L'ACTION ---
-elif st.session_state.step == 'action':
-    if st.session_state.choice == "kiffe":
-        st.subheader("Option : Le Kiffe Royal")
-        st.write("Marche fière dans ton salon pendant 10 min. Tête haute, on savoure !")
-    else:
-        st.subheader("Option : L'Énergie Brute")
-        st.write("10 min de danse sauvage ou de squats insolents. Fais trembler les murs !")
+        try:
+            response = client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "system", "content": manifeste_queen},
+                    {"role": "user", "content": f"Je me sens comme ça : {st.session_state.mood}"}
+                ]
+            )
+            reponse_cash = response.choices[0].message.content
+            st.markdown(f"### {reponse_cash}")
+        except Exception as e:
+            st.error(f"Oups, un petit souci technique avec le cerveau de l'IA... Vérifie ta clé API ! Erreur : {e}")
     
-    if st.button("JE SUIS INCROYABLE ✅"):
-        st.balloons()
-        st.success("Mission accomplie, Majesté !")
-        if st.button("Recommencer"):
-            st.session_state.step = 'accueil'
-            st.rerun()
+    st.write("---")
+    st.write("### On fait quoi maintenant ?")
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("JE KIFFE ✨"):
+            st.session_state.choice = "kiffe"
+            st.session_state.step = 'action'
+            st
