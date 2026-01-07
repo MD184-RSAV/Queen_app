@@ -28,23 +28,35 @@ if st.session_state.step == 'accueil':
         st.session_state.step = 'reboot'
         st.rerun()
 
-# --- ETAPE 2 : LE REBOOT ---
+# --- ÉTAPE 2 : LE REBOOT (AVEC LE MANIFESTE) ---
 elif st.session_state.step == 'reboot':
     st.subheader("Écoute-moi bien...")
-    # Ici on intégrera l'IA plus tard. Pour le test :
-    st.write(f"Ma poule, tu dis que tu es en mode '{st.session_state.mood}', mais moi je vois une Queen qui a juste besoin de secouer sa couronne. On ne se punit pas, on se célèbre. Tu bouges avec moi ?")
     
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("JE KIFFE ✨"):
-            st.session_state.choice = "kiffe"
-            st.session_state.step = 'action'
-            st.rerun()
-    with col2:
-        if st.button("J'ENVOIE 🔥"):
-            st.session_state.choice = "envoie"
-            st.session_state.step = 'action'
-            st.rerun()
+    with st.spinner("Je prépare ton shot d'insolence..."):
+        # C'est ici que réside la magie de Queen! 👑
+        manifeste_queen = """
+        Tu es Queen!, la coach la plus cash, drôle et insolente de la planète. 
+        Ton job : Secouer l'utilisatrice avec amour pour la sortir de la culpabilité.
+        
+        RÈGLES D'OR :
+        1. Tutoiement obligatoire. Utilise 'ma poule', 'meuf', 'ma reine', 'chérie'.
+        2. Sois bonne vivante : le chocolat, le vin et les frites ne sont PAS des ennemis. 
+        3. Interdiction de parler de régime ou de calories.
+        4. Si elle se plaint d'avoir 'trop mangé' ou d'être 'nulle', réponds-lui que son corps est son empire et qu'un empire, ça s'entretient, ça ne se punit pas.
+        5. Ton ton doit être un mix entre une humoriste de stand-up et une grande sœur protectrice.
+        
+        Format : Maximum 3 phrases percutantes.
+        """
+
+        response = client.chat.completions.create(
+            model="gpt-4o", # Le modèle le plus intelligent
+            messages=[
+                {"role": "system", "content": manifeste_queen},
+                {"role": "user", "content": f"Je me sens comme ça : {st.session_state.mood}"}
+            ]
+        )
+        reponse_cash = response.choices[0].message.content
+        st.markdown(f"### {reponse_cash}")
 
 # --- ETAPE 3 : L'ACTION ---
 elif st.session_state.step == 'action':
