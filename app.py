@@ -83,17 +83,21 @@ elif st.session_state.step == 'reboot':
 elif st.session_state.step == 'action':
     if st.session_state.choice == "kiffe":
         st.subheader("👑 Le Kiffe Royal")
-        # J'ai ajouté un message plus sympa ici !
-        st.info("Prends une pause, mets ta musique préférée, et lâche-toi. Danse comme si personne ne te regardait. Tu es une reine, et les reines ont besoin de s'amuser pour régner. 💃✨")
+        st.success("Prends une pause, mets ta musique préférée, et lâche-toi. Danse comme si personne ne te regardait. Tu es une reine, et les reines ont besoin de s'amuser pour régner. 💃✨")
     else:
         st.subheader("🔥 L'Énergie Brute")
         st.warning("On réveille la lionne ! 10 min de mouvements qui te font sentir SOLIDE. Danse, squats, boxe le vide... montre-moi ton insolence !")
     
     st.write("---")
-    if st.button("JE SUIS INCROYABLE ✅"):
-        st.balloons()
-        st.success("T'es une patronne. MD Labs est fier de toi.")
-        
-    if st.button("REVENIR À L'ACCUEIL"):
-        st.session_state.step = 'accueil'
-        st.rerun()
+    
+    # On met les boutons dans des colonnes pour que ce soit joli
+    col_fin1, col_fin2 = st.columns(2)
+    
+    with col_fin1:
+        if st.button("JE SUIS INCROYABLE ✅"):
+            st.balloons()
+    
+    with col_fin2:
+        if st.button("RETOUR ACCUEIL 🏠"):
+            st.session_state.step = 'accueil'
+            st.rerun()
